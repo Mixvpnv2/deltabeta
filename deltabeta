@@ -181,7 +181,7 @@ local function a(b)
     for _,c in ipairs(b:GetDescendants()) do
         if c:IsA("\66\97\115\101\80\97\114\116") then
             c.Material=Enum.Material.ForceField
-            c.Color=Color3.new(1,0,0)
+            c.Color=Color3.new(0.207843, 0.376471, 0.474510)
         end
     end
 end
