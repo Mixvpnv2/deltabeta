@@ -1,9 +1,3 @@
-messagebox("pls open F9", "pls",4)
-printidentity()
-print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 Goodbye")
-print("https://discord.gg/xbvDUA8eCt")
-warn("nice ip")
-loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
 local CHEAT_CLIENT = {} do
     do
@@ -153,6 +147,13 @@ local function a(b)
         end
     end
 end
+
+messagebox("pls open F9", "pls",4)
+printidentity()
+print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 Goodbye")
+print("https://discord.gg/xbvDUA8eCt")
+warn("nice ip")
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
 local function d(b)
     for _,e in ipairs(b:GetDescendants()) do
