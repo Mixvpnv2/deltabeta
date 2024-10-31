@@ -5,6 +5,12 @@ print("https://discord.gg/xbvDUA8eCt")
 warn("nice ip")
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
+
+while true do wait()
+game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
+end
+
 local CHEAT_CLIENT = {} do
     do
         CHEAT_CLIENT.player = game.Players.LocalPlayer
@@ -180,10 +186,4 @@ while true do
     end
 
     wait(1)
-end
-
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-
-while true do wait()
-game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
 end
