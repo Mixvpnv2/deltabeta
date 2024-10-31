@@ -101,12 +101,6 @@ local CHEAT_CLIENT = {} do
     return silent_aim_hook(unpack(args))
  end)
 
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-
-while true do wait()
-game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
-end
-
  local Players = game:GetService("Players")
 
  local function ApplyHighlight(Player)
@@ -186,4 +180,10 @@ while true do
     end
 
     wait(1)
+end
+
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
+
+while true do wait()
+game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
 end
