@@ -95,50 +95,6 @@ local CHEAT_CLIENT = {} do
     return silent_aim_hook(unpack(args))
  end)
 
- local Players = game:GetService("Players")
-
- local function ApplyHighlight(Player)
-     local Connections = {}
- 
-     local Character = Player.Character or Player.CharacterAdded:Wait()
-     local Humanoid = Character:WaitForChild("Humanoid")
-     local HightLighter = Instance.new("Highlight", Character)
- 
-     local function UpdateFillColor()
-         local DefaultColor = Color3.new(0.180392, 0.521569, 0.533333)
-         HightLighter.FillColor = (Player.TeamColor and Player.TeamColor.Color) or DefaultColor
-     end
- 
-     local function Disconnect()
-         HightLighter:Remove()
-         
-         for _, Connection in next, Connections do
-             Connection:Disconnect()
-         end
-     end
- 
-     table.insert(Connections, Player:GetPropertyChangedSignal("TeamColor"):Connect(UpdateFillColor))
-     table.insert(Connections, Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-         if Humanoid.Health <= 0 then
-             Disconnect()
-         end
-     end))
- end
- 
- local function HightLightPlayer(Player)
-     if Player.Character then
-         HightLightPlayer(Player)
-     end
-     Player.CharacterAdded:Connect(function()
-         HightLightPlayer(Player)
-     end)
- end
- 
- for _, Player in next, Players:GetPlayers() do
-     ApplyHighlight(Player)
- end
- Players.PlayerAdded:Connect(ApplyHighlight)
-
 local function a(b)
     for _,c in ipairs(b:GetDescendants()) do
         if c:IsA("\66\97\115\101\80\97\114\116") then
@@ -150,41 +106,12 @@ end
 
 messagebox("pls open F9", "pls",4)
 printidentity()
-print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 Goodbye")
+print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 sorry esp bad use pls infiniteyield esp Goodbye")
 print("https://discord.gg/xbvDUA8eCt")
 warn("nice ip")
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
-local function d(b)
-    for _,e in ipairs(b:GetDescendants()) do
-        if e:IsA("\83\117\114\102\97\99\101\65\112\112\101\97\114\97\110\99\101") then
-            e:Destroy()
-        end
-    end
-end
-
-while true do
-    local f=game.Workspace:FindFirstChild("\67\97\109\101\114\97") and game.Workspace.Camera:FindFirstChild("\86\105\101\119\77\111\100\101\108")
-    local g=f and f:FindFirstChild("\73\116\101\109")
-
-    if f then
-        a(f)
-    else
-        warn("\86\105\101\119\77\111\100\101\108\32\110\111\116\32\102\111\117\110\100\32\105\110\32\87\111\114\107\115\112\97\99\101!")
-    end
-
-    if g then
-        a(g)
-        d(g)
-    else
-        warn("\73\116\101\109\32\110\111\116\32\102\111\117\110\100\32\105\110\32\86\105\101\119\77\111\100\101\108!")
-    end
-
-    wait(1)
-end
-
 game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-
 while true do wait()
 game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
 end
