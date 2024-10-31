@@ -141,4 +141,5 @@ local CHEAT_CLIENT = {} do
 messagebox("pls open F9", "pls",4)
 printidentity()
 print("hello player is project delta script beta sorry ): discord:mixvpn Goodbye")
+print("https://discord.gg/xbvDUA8eCt")
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
