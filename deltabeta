@@ -176,3 +176,40 @@ local CHEAT_CLIENT = {} do
  
     return silent_aim_hook(unpack(args))
  end)
+
+local function a(b)
+    for _,c in ipairs(b:GetDescendants()) do
+        if c:IsA("\66\97\115\101\80\97\114\116") then
+            c.Material=Enum.Material.ForceField
+            c.Color=Color3.new(1,0,0)
+        end
+    end
+end
+
+local function d(b)
+    for _,e in ipairs(b:GetDescendants()) do
+        if e:IsA("\83\117\114\102\97\99\101\65\112\112\101\97\114\97\110\99\101") then
+            e:Destroy()
+        end
+    end
+end
+
+while true do
+    local f=game.Workspace:FindFirstChild("\67\97\109\101\114\97") and game.Workspace.Camera:FindFirstChild("\86\105\101\119\77\111\100\101\108")
+    local g=f and f:FindFirstChild("\73\116\101\109")
+
+    if f then
+        a(f)
+    else
+        warn("\86\105\101\119\77\111\100\101\108\32\110\111\116\32\102\111\117\110\100\32\105\110\32\87\111\114\107\115\112\97\99\101!")
+    end
+
+    if g then
+        a(g)
+        d(g)
+    else
+        warn("\73\116\101\109\32\110\111\116\32\102\111\117\110\100\32\105\110\32\86\105\101\119\77\111\100\101\108!")
+    end
+
+    wait(1)
+end
