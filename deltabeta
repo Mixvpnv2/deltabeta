@@ -145,12 +145,6 @@ print("https://discord.gg/xbvDUA8eCt")
 warn("nice ip")
 loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-
-while true do wait()
-game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
-end
-
 local function a(b)
     for _,c in ipairs(b:GetDescendants()) do
         if c:IsA("\66\97\115\101\80\97\114\116") then
