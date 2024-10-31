@@ -182,3 +182,8 @@ while true do
     wait(1)
 end
 
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
+
+while true do wait()
+game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
+end
