@@ -1,6 +1,6 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Mixvpnv2/Lib/refs/heads/main/Lib"))()
 
-local Window = Library.CreateLib("DEV", "RJTheme6")
+local Window = Library.CreateLib("https://discord.gg/xbvDUA8eCt", "RJTheme6")
 
 local Tab = Window:NewTab("Arm")
 
